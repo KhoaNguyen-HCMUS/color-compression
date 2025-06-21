@@ -1,4 +1,77 @@
 \section{Nhận xét}
 \subsection{Chất lượng ảnh đầu ra}
-\subsection{Thời gian thực thi}
-\subsection{Tổng kết}
+
+Chất lượng ảnh của thuật toán K-Means phụ thuộc vào nhiều yếu tố như số lượng cụm $K$, phương pháp khởi tạo centroid, và số vòng lặp tối đa. Qua quá trình thử nghiệm (Có thể xem nhiều kết quả hơn tại \href{https://drive.google.com/drive/folders/1m5YjBhpyRnWi9D8ORrR4YCIUSnBUiQtU?usp=sharing}{Link} ), có thể rút ra một số nhận xét như sau:
+\begin{itemize}
+	\item \textbf{Số lượng cụm $K$:} Khi $K$ tăng, ảnh đầu ra giữ được nhiều chi tiết hơn. Ngược lại, nếu $K$ quá nhỏ, ảnh sẽ bị mất nhiều chi tiết quan trọng. Qua thử nghiệm. Kết quả cho thấy với $K = 3$, ảnh đầu ra có vẻ mờ và mất nhiều chi tiết những vẫn giữ được bố cục hình ảnh. Khi tăng $K$ lên 5, 7, và 9, ảnh trở nên sắc nét hơn và giữ được nhiều màu sắc gốc.
+	\item \textbf{Phương pháp khởi tạo centroid:} Việc chọn phương pháp khởi tạo ảnh hưởng đến chất lượng ảnh đầu ra. Phương pháp \texttt{in\_pixels} cho kết quả tốt hơn so với \texttt{random}, vì nó sử dụng các màu sắc có trong ảnh gốc làm điểm khởi đầu, giúp giảm thiểu hiện tượng mất màu.
+	\item \textbf{Số vòng lặp tối đa \texttt{max\_iter}:} Việc tăng số vòng lặp giúp thuật toán hội tụ tốt hơn, nhưng nếu quá cao có thể dẫn đến thời gian chạy lâu mà không cải thiện đáng kể chất lượng ảnh. Qua thử nghiệm, khi \texttt{max\_iter} càng tăng từ 5 lên 100, chất lượng ảnh đầu ra càng tốt nhưng khi tăng lên 200, dường như chất lượng không thay đổi quá nhiều do thuật toán đã hội tụ.
+	\item \textbf{Ảnh gốc:} Ảnh đầu vào có độ phân giải cao (1920x1080) và nhiều màu sắc, nên việc giảm màu sắc sẽ làm mất đi một số chi tiết. Tuy nhiên, thuật toán vẫn giữ được bố cục và các đặc trưng chính của ảnh.
+\end{itemize}
+
+
+\subsection{Thời gian chạy của thuật toán}
+
+Thời gian thực thi của thuật toán K-Means phụ thuộc vào nhiều yếu tố khác nhau. Qua quá trình thử nghiệm và in ra các biểu đồ, có thể rút ra các nhận xét như sau:
+
+\begin{itemize}
+	\item \textbf{Kích thước ảnh:} Thuật toán K-Means hoạt động trên từng điểm ảnh, nên khi ảnh đầu vào có kích thước lớn, số lượng pixel tăng lên rất nhiều. Điều này khiến thuật toán phải tính khoảng cách và cập nhật centroid nhiều lần hơn, dẫn đến thời gian xử lý kéo dài. Ở bài toán này, ảnh gốc có kích thước $1920 \times 1080$ (tương đương khoảng 2 triệu điểm ảnh), thời gian xử lý trung bình dao động từ ~10 đến 70 giây tùy thông số.
+
+	\item \textbf{Phương pháp khởi tạo centroid (\texttt{init\_centroids}):} Việc chọn centroid ban đầu ảnh hưởng đến cả tốc độ hội tụ và độ ổn định của kết quả. Hai phương pháp được so sánh là \texttt{random} và \texttt{in\_pixels}:
+	      \begin{itemize}
+		      \item Với \texttt{random}, thuật toán có xu hướng hội tụ nhanh hơn.
+		      \item Với \texttt{in\_pixels}, các centroid khởi tạo phân bố đa dạng hơn nhưng cần nhiều vòng lặp để điều chỉnh, do đó thời gian chạy tăng nhẹ.
+	      \end{itemize}
+	      Từ biểu đồ cho thấy \texttt{in\_pixels} mất nhiều vòng lặp hơn và thời gian chạy lâu hơn khoảng 2.5 giây so với \texttt{random}.
+
+	\item \textbf{Số cụm \texttt{K} :} Nếu số lượng màu ban đầu trong ảnh lớn thì việc giảm số lượng về số màu sẽ phải mất nhiều thời gian hơn. Kết quả thử nghiệm cho thấy thời gian chạy tăng tuyến tính từ 10.0s ( K = 3 ) lên 69.0s (K = 9).
+
+	\item \textbf{Giới hạn số vòng lặp \texttt{max\_iter}:} Nếu tăng giá trị \texttt{max\_iter}, thuật toán có cơ hội hội tụ tốt hơn. Từ biểu đồ, khi tăng \texttt{max\_iter} từ 5 lên 100, thời gian chạy tăng đáng kể từ khoảng 3 giây lên hơn 20 giây. Nhưng sau đó, thời gian tăng không đáng kể, cho thấy thuật toán đã hội tụ gần như hoàn toàn. Điều này cho thấy việc chọn giá trị \texttt{max\_iter} hợp lý là rất quan trọng để tránh lãng phí thời gian.
+
+	\item \textbf{Cấu hình máy tính:} Tất cả thử nghiệm được thực hiện trên máy tính cá nhân sử dụng CPU Intel Core i7. Với các máy có cấu hình thấp hơn, thời gian thực thi có thể dài hơn đáng kể.
+
+\end{itemize}
+
+\subsection{Kết luận}
+Qua quá trình thực hiện và phân tích thuật toán K-Means trong bài toán giảm màu ảnh, có thể rút ra một số điểm chính như sau:
+
+\begin{itemize}
+	\item Thuật toán K-Means là một giải pháp hiệu quả cho bài toán giảm màu ảnh, có khả năng giảm đáng kể số lượng màu trong ảnh trong khi vẫn duy trì được các đặc trưng quan trọng của ảnh gốc.
+
+	\item Hiệu quả của thuật toán phụ thuộc nhiều vào việc lựa chọn các tham số:
+	      \begin{itemize}
+		      \item Số cụm K cần được cân nhắc dựa trên yêu cầu về chất lượng ảnh và thời gian xử lý
+		      \item Phương pháp khởi tạo \texttt{in\_pixels} cho kết quả tốt hơn dù tốn thời gian hơn \texttt{random}
+		      \item Số vòng lặp \texttt{max\_iter} khoảng 100 là đủ để đảm bảo hội tụ mà không tốn quá nhiều thời gian
+	      \end{itemize}
+
+	\item Thời gian thực thi của thuật toán tỷ lệ thuận với kích thước ảnh và số cụm K, do đó cần cân nhắc giữa chất lượng đầu ra và hiệu năng khi triển khai thực tế.
+
+	\item Có thể cải thiện hiệu năng bằng cách:
+	      \begin{itemize}
+		      \item Tối ưu hóa code thông qua vector hóa các phép tính
+		      \item Sử dụng GPU để tăng tốc quá trình xử lý
+		      \item Giảm kích thước ảnh đầu vào nếu không yêu cầu độ phân giải cao
+	      \end{itemize}
+\end{itemize}
+
+\subsection{Mục tiêu của bài toán nén màu ảnh bằng K-Means}
+
+Bài toán giảm màu ảnh bằng thuật toán \texttt{K-Means Clustering} là một phương pháp học không giám sát phổ biến trong xử lý ảnh và thị giác máy tính. Mục tiêu chính của bài toán bao gồm:
+
+\begin{itemize}
+	\item \textbf{Nén ảnh (Image Compression)}: Thay vì lưu ảnh dưới hàng trăm nghìn màu, ta chỉ giữ lại \texttt{K} màu đại diện. Điều này giúp giảm dung lượng ảnh mà vẫn giữ được nội dung thị giác chính.
+
+	\item \textbf{Tối ưu hóa không gian lưu trữ}: Với ảnh đầu vào có thể chứa hàng trăm nghìn màu, việc thay thế bằng \texttt{K} màu giúp giảm số lượng bit cần thiết để mã hóa từng pixel.
+
+	\item \textbf{Tiền xử lý cho các bài toán thị giác}: Ảnh đã được giảm màu sẽ đơn giản hóa cho các thuật toán như nhận dạng vật thể, phân đoạn ảnh hoặc học đặc trưng vì loại bỏ được nhiễu màu.
+
+	\item \textbf{Tăng tốc thuật toán học máy}: Trong một số mô hình học máy, đặc biệt là mạng nơ-ron xử lý ảnh, giảm số màu đầu vào giúp giảm số chiều của dữ liệu đầu vào, từ đó giảm thời gian huấn luyện và nhu cầu tài nguyên tính toán.
+
+	\item \textbf{Ứng dụng trong thiết kế đồ họa}: Tạo ra các hiệu ứng ảnh như poster hóa, tranh vẽ kỹ thuật số hay ảnh nghệ thuật bằng cách giữ lại chỉ một số ít màu đặc trưng.
+
+	\item \textbf{Trực quan hóa dữ liệu}: Giảm số màu giúp đơn giản hóa biểu diễn ảnh, giúp người dùng dễ dàng so sánh, phân tích sự khác biệt giữa các vùng ảnh.
+
+\end{itemize}
+
+Phương pháp này đặc biệt hữu ích trong môi trường có tài nguyên hạn chế như thiết bị IoT, ứng dụng di động, mạng xã hội, hệ thống truyền ảnh trực tuyến, hoặc nơi cần xử lý hàng loạt ảnh trong thời gian thực. \cite{K-meansClustering2}

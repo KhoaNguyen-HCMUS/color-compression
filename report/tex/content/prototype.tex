@@ -1,1 +1,48 @@
 \section{Mô tả các hàm}
+\subsection{Các thư viện cần thiết}
+Trong đồ án này, các thư viện chính được sử dụng bao gồm:
+\begin{itemize}
+	\item \textbf{numpy}: Thư viện xử lý ma trận và mảng số học hiệu năng cao, cung cấp các phép tính vector hóa giúp tăng tốc độ tính toán trên dữ liệu lớn.
+	\item \textbf{PIL (Python Imaging Library)}: Thư viện xử lý ảnh, được sử dụng để đọc/ghi các định dạng ảnh phổ biến và thực hiện các thao tác cơ bản với ảnh.
+	\item \textbf{matplotlib}: Thư viện vẽ đồ thị, được dùng để hiển thị ảnh và biểu đồ đánh giá hiệu năng.
+
+	\item Các thư viện bổ trợ:
+	      \begin{itemize}
+		      \item \texttt{os}: Xử lý đường dẫn và thao tác file
+		      \item \texttt{time}: Đo thời gian thực thi
+	      \end{itemize}
+\end{itemize}
+
+\subsection{Các hàm xử lý ảnh cơ bản}
+\subsubsection{(\texttt{read\_img(img\_path)})}
+Hàm \texttt{read\_img} có nhiệm vụ đọc hình ảnh từ đường dẫn được truyền vào, sau đó chuyển đổi thành một mảng NumPy 2 chiều đại diện cho ảnh RGB. Điều này cho phép máy tính có thể xử lý hình ảnh dễ dàng hơn.
+
+\subsubsection{(\texttt{show\_img(img\_2d)})}
+Hàm \texttt{show\_img} có chức năng hiển thị ảnh từ mảng numpy 2D sử dụng thư viện \texttt{matplotlib}. Để giúp hình ảnh hiển thị rõ ràng và không bị che bởi các trục tọa độ, lệnh \texttt{plt.axis('off')} được sử dụng để tắt hiển thị trục.
+
+\subsubsection{(\texttt{save\_img(img\_2d, img\_path, export\_type)})}
+Hàm \texttt{save\_img} được dùng để lưu một hình ảnh từ mảng numpy 2D vào một đường dẫn cụ thể. Quá trình hoạt động như sau:
+\begin{itemize}
+	\item Mảng ảnh 2D được chuyển thành ảnh sử dụng hàm \texttt{Image.fromarray()} của thư viện PIL.
+	\item Tên tệp được ghép từ \texttt{img\_path} và đuôi mở rộng \texttt{export\_type}.
+	\item Ảnh được lưu bằng hàm \texttt{save()}, hỗ trợ các định dạng như png, jpg, jpeg, pdf.
+\end{itemize}
+
+\subsubsection{(\texttt{convert\_img\_to\_1d(img\_2d)})}
+
+Hàm \texttt{convert\_img\_to\_1d} chuyển đổi ảnh từ dạng 2D (height, width, channels) sang dạng 1D ( height $\times$ width, channels) để phù hợp với việc xử lý của thuật toán K-Means. Quá trình chuyển đổi được thực hiện bằng hàm \texttt{reshape()}.
+
+\subsubsection{(\texttt{generate\_2d\_img(img\_2d\_shape, centroids, labels)})}
+
+Sau khi phân cụm màu bằng K-means, ta cần chuyển kết quả thành ảnh để hiển thị và lưu trữ. Hàm \texttt{generate\_2d\_img} sẽ tái tạo lại ảnh 2D từ mảng 1D đã phân cụm. Kết quả nhận được sẽ là một ảnh 2D với kích thước ban đầu, trong đó mỗi pixel được gán màu tương ứng với tâm cụm gần nhất.
+
+\subsubsection{(\texttt{has\_converged(old\_centroids, new\_centroids, tolerance\=0.001)})}
+
+Hàm \texttt{has\_converged} kiểm tra xem các centroid có thay đổi đáng kể sau mỗi vòng lặp hay không. Nếu độ thay đổi tương đối giữa các centroid mới và cũ nhỏ hơn ngưỡng \texttt{tolerance}, thuật toán sẽ kết thúc. Chi tiết như sau:
+\begin{itemize}
+	\item Bước đầu tiên là tính toán độ chênh lệch tuyệt đối giữa các centroid cũ và mới bằng hàm \texttt{np.abs(new\_centroids \- old\_centroids)}.
+	\item Sau đó, các thay đổi này được chuẩn hóa để biết mức độ thay đổi tương đối so với giá trị ban đầu bằng cách chia cho giá trị tuyệt đối của các centroid cũ.
+	\item Nếu sự thay đổi lớn nhất nhỏ hơn một ngưỡng nhất định (\texttt{tolerance}), ta xem như thuật toán đã hội tụ và có thể dừng lại.
+\end{itemize}
+
+Điều này giúp giảm thiểu số lần lặp không cần thiết, tiết kiệm thời gian tính toán. Hàm này được gọi trong vòng lặp chính của thuật toán K-means để kiểm tra điều kiện dừng. Việc so sánh độ chênh lệch của từng centroid thay vì tính tổng khoảng cách giúp tăng tốc độ tính toán, vì ta chỉ cần so sánh từng giá trị riêng lẻ thay vì tính tổng toàn bộ.

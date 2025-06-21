@@ -16,25 +16,25 @@ Ta có thể mô tả thuật toán K-Means clustering qua các bước sau:
 \begin{enumerate}
 	\item Ta có tập dữ liệu ban đầu như sau:
 	      \begin {center}
-	      \includegraphics[width=0.5\textwidth]{images/KMeanStep/1.PNG}
+	      \includegraphics[width=0.5\textwidth]{images/kmean/1.png}
 	      \end{center}
 
 	\item Chọn ngẫu nhiên $K$ điểm làm tâm của các cụm  phân loại dữ liệu vào từng nhóm. Giả sử ta chọn $K = 3$:
 	      \begin{center}
-		      \includegraphics[width=0.8\textwidth]{images/KMeanStep/2.PNG}
+		      \includegraphics[width=0.8\textwidth]{images/kmean/2.png}
 	      \end{center}
 
 	\item Gán mỗi điểm dữ liệu vào cụm gần nhất với nó. Khoảng cách giữa các điểm dữ liệu và tâm cụm được tính bằng khoảng cách Euclid:
 	      \begin {center}
-	      \includegraphics[width=0.8\textwidth]{images/KMeanStep/3.PNG}
+	      \includegraphics[width=0.8\textwidth]{images/kmean/3.png}
 	      \end{center}
 	\item Tính toán lại tâm của các cụm dựa trên các điểm dữ liệu đã được gán. Tâm cụm mới sẽ là trung bình của tất cả các điểm dữ liệu trong cụm đó:
 	      \begin{center}
-		      \includegraphics[width=0.8\textwidth]{images/KMeanStep/4.PNG}
+		      \includegraphics[width=0.8\textwidth]{images/kmean/4.png}
 	      \end{center}
 	\item Lặp lại bước 3 và 4 cho đến khi không có sự thay đổi nào trong việc gán cụm hoặc đạt đến một số lần lặp tối đa. Sau một vài lần lặp, ta có thể thu được kết quả cuối cùng như sau:
 	      \begin {center}
-	      \includegraphics[width=0.8\textwidth]{images/KMeanStep/5.PNG}
+	      \includegraphics[width=0.8\textwidth]{images/kmean/5.png}
 	      \end{center}
 	\item Kết quả cuối cùng là các cụm dữ liệu được phân loại rõ ràng, với mỗi điểm dữ liệu thuộc về một cụm duy nhất
 
@@ -55,5 +55,7 @@ Dựa vào ý tưởng cơ bản của thuật toán K-Means clustering bên tr�
 	\item Sử dụng thuật toán K-Means clustering để phân loại các điểm dữ liệu (màu sắc) vào các cụm dựa trên khoảng cách Euclid đến các điểm centroids.
 	\item Tính toán lại các điểm centroids dựa trên các điểm dữ liệu đã được phân loại.
 	\item Lặp lại bước 4 và 5 cho đến khi không có sự thay đổi nào trong việc gán cụm hoặc đạt đến một số lần lặp tối đa.
-	\item Cuối cùng, tạo ra một ảnh mới từ các điểm centroids đã được tính toán. Mỗi điểm dữ liệu trong ảnh ban đầu sẽ được thay thế bằng màu sắc của điểm centroid gần nhất.
+	\item Sau khi thuật toán hội tụ, ta sẽ có các điểm centroids đại diện cho các màu sắc chính trong ảnh.
+	\item Cuối cùng, ta sẽ tạo ra một ảnh mới bằng cách thay thế mỗi điểm dữ liệu (màu sắc) trong ảnh gốc bằng màu sắc tương ứng với centroid gần nhất. Ảnh này sẽ có kích thước và bố cục giống như ảnh gốc nhưng chỉ sử dụng $K$ màu sắc đã chọn.
+	\item Kết quả là một ảnh đã được giảm màu sắc, với số lượng màu sắc giảm xuống còn $K$ nhưng vẫn giữ được các đặc trưng chính của ảnh ban đầu. \cite{K-meansClustering2}
 \end{enumerate}
