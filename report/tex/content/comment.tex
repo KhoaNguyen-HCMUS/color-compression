@@ -15,7 +15,7 @@ Chất lượng ảnh của thuật toán K-Means phụ thuộc vào nhiều y�
 Thời gian thực thi của thuật toán K-Means phụ thuộc vào nhiều yếu tố khác nhau. Qua quá trình thử nghiệm và in ra các biểu đồ, có thể rút ra các nhận xét như sau:
 
 \begin{itemize}
-	\item \textbf{Kích thước ảnh:} Thuật toán K-Means hoạt động trên từng điểm ảnh, nên khi ảnh đầu vào có kích thước lớn, số lượng pixel tăng lên rất nhiều. Điều này khiến thuật toán phải tính khoảng cách và cập nhật centroid nhiều lần hơn, dẫn đến thời gian xử lý kéo dài. Ở bài toán này, ảnh gốc có kích thước $1920 \times 1080$ (tương đương khoảng 2 triệu điểm ảnh), thời gian xử lý trung bình dao động từ ~10 đến 70 giây tùy thông số.
+	\item \textbf{Đặc trưng ảnh:} Thuật toán K-Means hoạt động trên từng điểm ảnh, nên khi ảnh đầu vào có kích thước lớn, số lượng pixel tăng lên rất nhiều. Điều này khiến thuật toán phải tính khoảng cách và cập nhật centroid nhiều lần hơn, dẫn đến thời gian xử lý kéo dài. Ở bài toán này, ảnh gốc có kích thước $1920 \times 1080$ (tương đương khoảng 2 triệu điểm ảnh), thời gian xử lý trung bình dao động từ ~10 đến 70 giây tùy thông số. Bên cạnh đó, nếu ảnh có quá nhiều màu sắc khác nhau(hoặc là có sự pha trộn màu sắc phức tạp), việc giảm màu sắc sẽ phần nào mất đi sự pha trộn ấy mà thay vào đó là các màu sắc đại diện, dẫn đến việc thuật toán phải tính toán nhiều hơn để tìm ra các centroid phù hợp.
 
 	\item \textbf{Phương pháp khởi tạo centroid (\texttt{init\_centroids}):} Việc chọn centroid ban đầu ảnh hưởng đến cả tốc độ hội tụ và độ ổn định của kết quả. Hai phương pháp được so sánh là \texttt{random} và \texttt{in\_pixels}:
 	      \begin{itemize}
@@ -26,9 +26,9 @@ Thời gian thực thi của thuật toán K-Means phụ thuộc vào nhiều y�
 
 	\item \textbf{Số cụm \texttt{K} :} Nếu số lượng màu ban đầu trong ảnh lớn thì việc giảm số lượng về số màu sẽ phải mất nhiều thời gian hơn. Kết quả thử nghiệm cho thấy thời gian chạy tăng tuyến tính từ 10.0s ( K = 3 ) lên 69.0s (K = 9).
 
-	\item \textbf{Giới hạn số vòng lặp \texttt{max\_iter}:} Nếu tăng giá trị \texttt{max\_iter}, thuật toán có cơ hội hội tụ tốt hơn. Từ biểu đồ, khi tăng \texttt{max\_iter} từ 5 lên 100, thời gian chạy tăng đáng kể từ khoảng 3 giây lên hơn 20 giây. Nhưng sau đó, thời gian tăng không đáng kể, cho thấy thuật toán đã hội tụ gần như hoàn toàn. Điều này cho thấy việc chọn giá trị \texttt{max\_iter} hợp lý là rất quan trọng để tránh lãng phí thời gian.
+	\item \textbf{Giới hạn số vòng lặp \texttt{max\_iter}:} Nếu tăng giá trị \texttt{max\_iter}, thuật toán có cơ hội hội tụ tốt hơn. Từ biểu đồ, khi tăng \texttt{max\_iter} từ 5 lên 100, thời gian chạy tăng đáng kể từ khoảng 3 giây lên hơn 20 giây. Nhưng sau đó, thời gian tăng không đáng kể, cho thấy thuật toán đã hội tụ gần như hoàn toàn. Điều này cho thấy điều kiện dừng của thuật toán là hợp lý.
 
-	\item \textbf{Cấu hình máy tính:} Tất cả thử nghiệm được thực hiện trên máy tính cá nhân sử dụng CPU Intel Core i7. Với các máy có cấu hình thấp hơn, thời gian thực thi có thể dài hơn đáng kể.
+	\item \textbf{Cấu hình máy tính:} Tất cả thử nghiệm được thực hiện trên máy tính cá nhân sử dụng CPU Intel Core i5 8540U. Với các máy có cấu hình thấp hơn, thời gian thực thi có thể dài hơn đáng kể.
 
 \end{itemize}
 

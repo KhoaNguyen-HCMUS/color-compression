@@ -13,14 +13,13 @@ Trong đồ án này, các thư viện chính được sử dụng bao gồm:
 	      \end{itemize}
 \end{itemize}
 
-\subsection{Các hàm xử lý ảnh cơ bản}
-\subsubsection{(\texttt{read\_img(img\_path)})}
+\subsection{Hàm \texttt{read\_img(img\_path)}}
 Hàm \texttt{read\_img} có nhiệm vụ đọc hình ảnh từ đường dẫn được truyền vào, sau đó chuyển đổi thành một mảng NumPy 2 chiều đại diện cho ảnh RGB. Điều này cho phép máy tính có thể xử lý hình ảnh dễ dàng hơn.
 
-\subsubsection{(\texttt{show\_img(img\_2d)})}
+\subsection{Hàm \texttt{show\_img(img\_2d)}}
 Hàm \texttt{show\_img} có chức năng hiển thị ảnh từ mảng numpy 2D sử dụng thư viện \texttt{matplotlib}. Để giúp hình ảnh hiển thị rõ ràng và không bị che bởi các trục tọa độ, lệnh \texttt{plt.axis('off')} được sử dụng để tắt hiển thị trục.
 
-\subsubsection{(\texttt{save\_img(img\_2d, img\_path, export\_type)})}
+\subsection{Hàm \texttt{save\_img(img\_2d, img\_path, export\_type)}}
 Hàm \texttt{save\_img} được dùng để lưu một hình ảnh từ mảng numpy 2D vào một đường dẫn cụ thể. Quá trình hoạt động như sau:
 \begin{itemize}
 	\item Mảng ảnh 2D được chuyển thành ảnh sử dụng hàm \texttt{Image.fromarray()} của thư viện PIL.
@@ -28,19 +27,70 @@ Hàm \texttt{save\_img} được dùng để lưu một hình ảnh từ mảng 
 	\item Ảnh được lưu bằng hàm \texttt{save()}, hỗ trợ các định dạng như png, jpg, jpeg, pdf.
 \end{itemize}
 
-\subsubsection{(\texttt{convert\_img\_to\_1d(img\_2d)})}
+\subsection{Hàm \texttt{convert\_img\_to\_1d(img\_2d)}}
 
 Hàm \texttt{convert\_img\_to\_1d} chuyển đổi ảnh từ dạng 2D (height, width, channels) sang dạng 1D ( height $\times$ width, channels) để phù hợp với việc xử lý của thuật toán K-Means. Quá trình chuyển đổi được thực hiện bằng hàm \texttt{reshape()}.
 
-\subsubsection{(\texttt{generate\_2d\_img(img\_2d\_shape, centroids, labels)})}
+\subsection{Hàm \texttt{kmeans(img\_1d, k\_cluster, max\_iter, init\_centroids\='random')}}
+
+Hàm \texttt{kmeans} là hàm chính thực hiện thuật toán K-Means Clustering. Hàm này nhận vào mảng ảnh 1D, số lượng cụm cần phân loại, số vòng lặp tối đa và phương pháp khởi tạo centroid. Kết quả trả về là các centroid đã được cập nhật, nhãn của từng pixel trong ảnh và số lần lặp.
+
+\subsubsection{Chuẩn hóa dữ liệu đầu vào}
+Để đảm bảo các phép tính toán chính xác (đặc biệt là khi lấy trung bình màu và tính khoảng cách), toàn bộ mảng ảnh đầu vào được ép kiểu về dạng \texttt{float32} bằng hàm \texttt{astype(np.float32)}. Điều này giúp tránh các vấn đề về tràn số khi tính toán với giá trị màu sắc. Ngoài ra, bước này còn lấy số kênh màu (channels) từ ảnh để sử dụng trong các phép toán sau này.
+
+\subsubsection{Khởi tạo centroids}
+Dựa vào tham số \texttt{init\_centroids} (nếu không truyền vào, hàm sẽ lấy giá trị mặc định là \texttt{random}), hàm sẽ khởi tạo các centroid ban đầu theo hai phương pháp:
+\begin{itemize}
+	\item \texttt{random}: Chọn ngẫu nhiên $K$ điểm trong khoảng [0, 255] cho mỗi kênh màu. Điều này giúp phân bố các centroid ban đầu rộng rãi trong không gian màu.
+	\item \texttt{in\_pixels}: Chọn ngẫu nhiên $K$ điểm từ các màu sắc có trong ảnh. Phương pháp này giúp các centroid khởi tạo gần với các màu thực tế trong ảnh, có thể cải thiện độ chính xác của thuật toán.
+\end{itemize}
+
+Các centroid sẽ được lưu trong tập hợp \texttt{centroids} nên sẽ không thể trùng nhau. Nếu hệ thống random ra trùng lặp, ta sẽ tiếp tục chọn ngẫu nhiên cho đến khi đủ số lượng số lượng centroid khác biệt nhau.
+
+\subsubsection{Khởi tạo nhãn}
+Hàm \texttt{np.zeros} được sử dụng để khởi tạo mảng nhãn \texttt{labels} với kích thước bằng số lượng pixel trong ảnh (tức là chiều dài của mảng \texttt{img\_1d}). Mỗi nhãn sẽ đại diện cho cụm mà pixel đó thuộc về. Ban đầu, tất cả các nhãn đều được gán giá trị 0, tức là chưa phân loại.
+
+\subsubsection{Vòng lặp chính của thuật toán}
+Vòng lặp chính của thuật toán K-Means sẽ lặp lại tối đa \texttt{max\_iter} lần hoặc cho đến khi các centroid hội tụ. Trong mỗi vòng lặp, ta sẽ thực hiện các bước sau:
+\begin{itemize}
+	\item \textbf{Lưu lại centroids cũ}: Sao chép các centroid hiện tại vào biến \texttt{old\_centroids} để so sánh xem centroids đã hội tụ chưa.
+	\item \textbf{Tính khoảng cách}: Sử dụng broadcasting của \texttt{numpy}, thuật toán tính khoảng cách từ mỗi pixel đến tất cả centroid bằng công thức Euclidean (bình phương khoảng cách từng kênh RGB):
+	      \begin{itemize}
+		      \item Đầu tiên, với mỗi centroid, tính hiệu giữa centroid đó và tất cả điểm ảnh theo từng kênh màu.
+		      \item Sau đó, với mỗi cặp (centroid, điểm ảnh), tính tổng bình phương của hiệu các kênh RGB và lưu vào mảng \texttt{distances}.
+	      \end{itemize}
+
+	\item \textbf{Cập nhật nhãn}: Sử dụng hàm \texttt{np.argmin} để tìm chỉ số của centroid gần nhất cho mỗi pixel. Chỉ số này sẽ được gán vào mảng \texttt{labels}.
+
+	\item \textbf{Cập nhật centroid}: Với mỗi cụm:
+	      \begin{itemize}
+		      \item Lấy tất cả các pixel thuộc về cụm đó bằng cách sử dụng mảng \texttt{labels}.
+		      \item Tính trung bình của các pixel trong cụm để cập nhật vị trí mới của centroid. Nếu không có pixel nào thuộc về cụm, centroid sẽ giữ nguyên vị trí cũ.
+	      \end{itemize}
+
+	\item \textbf{Kiểm tra hội tụ}: Gọi hàm \texttt{has\_converged} để kiểm tra xem các centroid đã thay đổi đáng kể hay chưa. Nếu chưa, hệ thống sẽ tiếp tục vòng lặp. Nếu đã hội tụ, thuật toán sẽ dừng lại và ghi nhận số vòng lặp đã thực hiện.
+	\item \textbf{Kết quả trả về}: Sau khi vòng lặp kết thúc, hàm sẽ trả về các thông tin sau:
+	      \begin{itemize}
+		      \item \texttt{centroids}: Mảng các centroid đã được cập nhật.
+		      \item \texttt{labels}: Mảng nhãn cho từng pixel, cho biết pixel đó thuộc về cụm nào.
+		      \item \texttt{num\_iter}: Số vòng lặp đã thực hiện.
+	      \end{itemize}
+
+\end{itemize}
+
+
+
+
+
+\subsection{Hàm \texttt{generate\_2d\_img(img\_2d\_shape, centroids, labels)}}
 
 Sau khi phân cụm màu bằng K-means, ta cần chuyển kết quả thành ảnh để hiển thị và lưu trữ. Hàm \texttt{generate\_2d\_img} sẽ tái tạo lại ảnh 2D từ mảng 1D đã phân cụm. Kết quả nhận được sẽ là một ảnh 2D với kích thước ban đầu, trong đó mỗi pixel được gán màu tương ứng với tâm cụm gần nhất.
 
-\subsubsection{(\texttt{has\_converged(old\_centroids, new\_centroids, tolerance\=0.001)})}
+\subsection{Hàm \texttt{has\_converged(old\_centroids, new\_centroids, tolerance = 0.001)}}
 
 Hàm \texttt{has\_converged} kiểm tra xem các centroid có thay đổi đáng kể sau mỗi vòng lặp hay không. Nếu độ thay đổi tương đối giữa các centroid mới và cũ nhỏ hơn ngưỡng \texttt{tolerance}, thuật toán sẽ kết thúc. Chi tiết như sau:
 \begin{itemize}
-	\item Bước đầu tiên là tính toán độ chênh lệch tuyệt đối giữa các centroid cũ và mới bằng hàm \texttt{np.abs(new\_centroids \- old\_centroids)}.
+	\item Bước đầu tiên là tính toán độ chênh lệch tuyệt đối giữa các centroid cũ và mới bằng hàm \texttt{np.abs(new\_centroids - old\_centroids)}.
 	\item Sau đó, các thay đổi này được chuẩn hóa để biết mức độ thay đổi tương đối so với giá trị ban đầu bằng cách chia cho giá trị tuyệt đối của các centroid cũ.
 	\item Nếu sự thay đổi lớn nhất nhỏ hơn một ngưỡng nhất định (\texttt{tolerance}), ta xem như thuật toán đã hội tụ và có thể dừng lại.
 \end{itemize}
