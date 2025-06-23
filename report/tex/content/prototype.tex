@@ -84,7 +84,23 @@ Vòng lặp chính của thuật toán K-Means sẽ lặp lại tối đa \textt
 
 \subsection{Hàm \texttt{generate\_2d\_img(img\_2d\_shape, centroids, labels)}}
 
-Sau khi phân cụm màu bằng K-means, ta cần chuyển kết quả thành ảnh để hiển thị và lưu trữ. Hàm \texttt{generate\_2d\_img} sẽ tái tạo lại ảnh 2D từ mảng 1D đã phân cụm. Kết quả nhận được sẽ là một ảnh 2D với kích thước ban đầu, trong đó mỗi pixel được gán màu tương ứng với tâm cụm gần nhất.
+Hàm \texttt{generate\_2d\_img} chịu trách nhiệm tái tạo lại ảnh 2D từ kết quả phân cụm của thuật toán K-Means.
+
+Quá trình hoạt động như sau:
+
+\begin{itemize}
+  \item Dựa vào mảng \texttt{labels}, mỗi pixel sẽ được ánh xạ tới một \texttt{centroid} tương ứng, tạo thành một mảng một chiều mới chứa các màu được nén: \texttt{quantized\_1d}.
+  \item Sau đó, mảng một chiều này được reshape lại về kích thước ban đầu của ảnh (\texttt{img\_2d\_shape}) để tạo ảnh hai chiều: \texttt{quantized\_2d}.
+  \item Cuối cùng, ảnh đầu ra được ép kiểu về \texttt{uint8} để tương thích với các định dạng hình ảnh tiêu chuẩn.
+\end{itemize}
+
+Ngoài ra, hàm còn in ra số lượng màu thực tế trong ảnh kết quả (số lượng màu sau khi nén) bằng cách:
+\begin{itemize}
+  \item Chuyển ảnh 2D thành mảng 2D có shape (số pixel, 3 kênh màu).
+  \item Dùng \texttt{np.unique(..., axis=0)} để đếm số màu duy nhất.
+\end{itemize}
+
+Hàm trả về ảnh đã nén dưới dạng mảng 2D có kiểu dữ liệu \texttt{uint8}.
 
 \subsection{Hàm \texttt{has\_converged(old\_centroids, new\_centroids, tolerance = 0.001)}}
 
